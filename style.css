@@ -10,7 +10,7 @@ html {
 .btn-danger:hover {
   background-color: #FF1E00;
   border-color: #FF1E00;
-  padding: 1.1rem 2.1rem;
+  padding: 1.2rem 2.2rem;
   transition: all 0.5s;
 }
 
@@ -18,7 +18,7 @@ html {
   border-color: #FF6700;
   background-color: #FF6700;
   border-radius: 30px;
-  padding: 1rem 2rem;
+  padding: 1.1rem 2.1rem;
 }
 
 h1 {
