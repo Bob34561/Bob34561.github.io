@@ -1,0 +1,193 @@
+# =====================================================================================================
+#  GrimAC 2.3.73 punishments.yml  -  ELYTRA PVP SETUP (runs together with Vulcan 2.9.7)
+#
+#  What Grim is responsible for (its strengths):
+#    movement prediction on foot, NoSlow, Timer, Reach, Hitboxes, Knockback, bad/illegal packets,
+#    crash and exploit packets.
+#  What Grim only alerts for (Vulcan is better at these, or they are not reliable enough to ban for):
+#    Aim, block place/break, sprint, inventory actions, vehicles, chat, Baritone.
+#  Vulcan bans for Aim, KillAura, AutoBlock, FastUse, FastPlace, Scaffold, Inventory... (see Vulcan's config.yml).
+#
+#  How this file works (from Grim's own code, PunishmentManager.java):
+#   * A check is only switched on if it is listed in a group below. A check that is NOT listed still
+#     runs silently: it can still teleport you back but it never sends an alert. The default file did
+#     not list "Phase", which is one reason you were teleported back with no alert.
+#     Grim's elytra take-off checks (ElytraA-I) are left out on purpose. See config.yml for why.
+#   * "threshold:interval command": both numbers count ALL flags of that group from the last
+#     remove-violations-after seconds. The command runs when count >= threshold AND count % interval == 0.
+#     An interval of 0 means "run once" (per player, per login).
+#   * Every group alerts on EVERY flag ("1:1 [alert]"), so every setback / cancelled hit shows up in chat.
+#     Staff need the grim.alerts permission (add grim.alerts.enable-on-join to turn alerts on automatically).
+#   * "1:1 [log]" saves every flag to the database: /grim history <player>
+#   * Ban thresholds are set a bit higher than usual community configs to avoid false bans.
+#
+#  BAN COMMAND: needs a ban plugin with "tempban <player> <time> <reason>" (EssentialsX, LiteBans,
+#  AdvancedBan...). Paper/vanilla has no temporary ban. If your plugin uses another syntax, only change
+#  the "tempban ..." lines.
+#  Placeholders you can use: %player% %check_name% %vl% %description% %ping% %brand% %version%
+# =====================================================================================================
+Punishments:
+  # --- Movement prediction: speed, fly, step, jesus, strafe, fake ground/crits, NoFall -----------------
+  # Not run while a player is gliding (exempt-elytra: true in config.yml).
+  # Flags quickly while someone is cheating, so the ban needs a lot of flags.
+  Movement:
+    # After how many seconds should a violation be removed?
+    remove-violations-after: 300
+    # This section will match all checks with the name,
+    # To exclude a check that would otherwise be matched, put an exclamation mark in front of the name
+    # For example, !BadPacketsN
+    checks:
+      - "Simulation"
+      - "GroundSpoof"
+      - "NoFall"
+    # Threshold:Interval Command  (0 interval = execute exactly once)
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "200:0 [webhook]"
+      - "200:0 tempban %player% 1d Cheating detected by GrimAC (Movement - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Phase / NoClip (walking into blocks). Teleports back on the first flag. ----------------------
+  # The default punishments.yml did not list this check at all, so these teleports were never alerted.
+  Phase:
+    remove-violations-after: 300
+    checks:
+      - "Phase"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "40:0 [webhook]"
+      - "40:0 tempban %player% 1d Cheating detected by GrimAC (Phase - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- NoSlow: not being slowed down while eating / drinking / blocking / using items ---------------
+  NoSlow:
+    remove-violations-after: 300
+    checks:
+      - "NoSlow"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "80:0 [webhook]"
+      - "80:0 tempban %player% 1d Cheating detected by GrimAC (NoSlow - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Timer: game speed / packet speed (Timer, TimerLimit, TickTimer, NegativeTimer) -------------
+  # VehicleTimer is excluded here and is alert-only in the Misc group.
+  Timer:
+    remove-violations-after: 300
+    checks:
+      - "Timer"
+      - "!VehicleTimer"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "100:0 [webhook]"
+      - "100:0 tempban %player% 1d Cheating detected by GrimAC (Timer - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Velocity / AntiKnockback (Grim's prediction-based knockback check, AntiKB + AntiExplosion) ---
+  Knockback:
+    remove-violations-after: 300
+    checks:
+      - "Knockback"
+      - "Explosion"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "30:0 [webhook]"
+      - "30:0 tempban %player% 1d Cheating detected by GrimAC (Velocity - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Reach: Grim's reach check is the most precise one and supports 1.21.11 weapon attack ranges.
+  # Hits that are impossible are cancelled (block-impossible-hits) and every one of them is alerted now.
+  Reach:
+    remove-violations-after: 300
+    checks:
+      - "Reach"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "15:0 [webhook]"
+      - "15:0 tempban %player% 1d Cheating detected by GrimAC (Reach) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Hitboxes: hit an entity the player was not looking at (KillAura / expanded hitboxes) --------
+  Hitboxes:
+    remove-violations-after: 300
+    checks:
+      - "Hitboxes"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "20:0 [webhook]"
+      - "20:0 tempban %player% 1d Cheating detected by GrimAC (Hitboxes / KillAura) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Illegal / impossible packets and packet order (KillAura, Disablers, NoSwing, Derp...) -------
+  # Legit clients never send these, but ViaVersion/ViaBackwards clients can trip one now and then,
+  # so the ban needs many flags.
+  Packets:
+    remove-violations-after: 300
+    checks:
+      - "BadPackets"
+      - "PacketOrder"
+      - "Post"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "80:0 [webhook]"
+      - "80:0 tempban %player% 1d Cheating detected by GrimAC (Bad packets - %check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # --- Crash / exploit packets (server crashers, book/anvil exploits). Grim blocks them. -----------
+  # CrashE (client render distance below 2) is excluded here and is alert-only in the Misc group.
+  Exploits:
+    remove-violations-after: 300
+    checks:
+      - "Crash"
+      - "!CrashE"
+      - "Exploit"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "10:0 [webhook]"
+      - "10:0 tempban %player% 1d Exploit / crash attempt detected by GrimAC (%check_name%) | Appeal on Discord: https://discord.gg/r5hvgmmVDg"
+
+  # ===================== ALERT-ONLY GROUPS (no automatic ban from Grim) =====================
+
+  # Aim: Vulcan has far more aim checks and does the banning. Grim only alerts.
+  Combat:
+    remove-violations-after: 300
+    checks:
+      - "Aim"
+      - "Interact"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "20:20 [webhook]"
+
+  # Block placing / breaking (scaffold, nuker, fastbreak). Grim still cancels impossible placements.
+  # Grim 2.3.73 has known FastBreak false positives when switching slots while digging, so no ban here.
+  # Vulcan bans for Scaffold / Tower / FastPlace / FastBreak.
+  Building:
+    remove-violations-after: 300
+    checks:
+      - "Place"
+      - "Break"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "20:20 [webhook]"
+
+  # Misc: sprint, inventory-while-moving, vehicles, chat, Baritone, transaction order, CrashE.
+  # MultiActions and Vehicle checks have false positives in 2.3.73 that were only fixed later
+  # (nautilus / happy ghast riding, inventory opened in the same tick).
+  # TransactionOrder can be tripped when Grim's and Vulcan's ping IDs collide, so it must never ban.
+  Misc:
+    remove-violations-after: 300
+    checks:
+      - "Sprint"
+      - "MultiActions"
+      - "Vehicle"
+      - "Baritone"
+      - "Chat"
+      - "TransactionOrder"
+      - "CrashE"
+    commands:
+      - "1:1 [alert]"
+      - "1:1 [log]"
+      - "20:20 [webhook]"
